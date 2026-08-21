@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum SubscriptionStatus { FREE; PRO }
+enum TemplateStatus { PENDING; APPROVED; REJECTED }
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  username         String?
+  isAdmin          Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  subscription     Subscription?
+  usageLogs        UsageLog[]
+  templates        Template[]
+  notifications    Notification[]
+  donations        Donation[]
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  userId           String             @unique
+  user             User               @relation(fields: [userId], references: [id])
+  status           SubscriptionStatus @default(FREE)
+  stripeCustomerId String?            @unique
+}
+
+model UsageLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String   // 'resume' | 'coverletter' | 'answer'
+  month     Int
+  year      Int
+  createdAt DateTime @default(now())
+}
+
+model Template {
+  id            String         @id @default(cuid())
+  name          String
+  category      String
+  prompt        String
+  createdBy     String
+  user          User               @relation(fields: [createdBy], references: [id])
+  status        TemplateStatus @default(PENDING)
+  adminFeedback String?
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Donation {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  amount    Float
+  message   String?
+  createdAt DateTime @default(now())
+}
+
+model AppSettings {
+  key   String @id
+  value String
+}
