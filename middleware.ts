@@ -1,15 +1,19 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (req.nextUrl.pathname.startsWith('/admin')) {
-    if (!session) return NextResponse.redirect(new URL('/login', req.url));
-    const { data: user } = await supabase.from('User').select('isAdmin').eq('id', session.user.id).single();
-    if (!user?.isAdmin) return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
-  return res;
+  let res = NextResponse.next()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return req.cookies.getAll() },
+        setAll(cookies) { cookies.forEach(({ name, value, options }) => res.cookies.set(name, value, options)) }
+      }
+    }
+  )
+  await supabase.auth.getUser()
+  return res
 }
