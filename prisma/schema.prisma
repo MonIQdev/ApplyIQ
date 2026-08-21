@@ -8,8 +8,17 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum SubscriptionStatus { FREE; PRO }
-enum TemplateStatus { PENDING; APPROVED; REJECTED }
+enum SubscriptionStatus {
+  FREE
+  PRO
+}
+
+enum TemplateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 
 model User {
   id               String            @id @default(uuid())
