@@ -7,8 +7,10 @@ export default function Landing() {
       <h1 className="text-6xl font-black mb-6">Stop applying. Start getting interviews.</h1>
       <p className="text-xl text-slate-600 mb-10">Free AI Autofill for LinkedIn, Indeed, and Workday.</p>
       <div className="flex gap-4 justify-center">
-        <Button size="lg" asChild><Link href="/login">Get Started</Link></Button>
-        <Button size="lg" variant="outline" asChild><Link href="/donate">Support Project</Link></Button>
+       <div className="flex gap-4 justify-center">
+  <Link href="/login"><Button size="lg">Get Started</Button></Link>
+  <Link href="/donate"><Button size="lg" variant="outline">Support Project</Button></Link>
+</div>
       </div>
     </main>
   );
